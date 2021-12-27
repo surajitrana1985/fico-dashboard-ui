@@ -32,12 +32,12 @@ export class TableContainerComponent implements OnInit, OnChanges {
     totalRecords: 0
   };
 
+  filterMap: any = {};
+
   paginationOptions: Pagination = {
     page: 1,
     limit: 5
   };
-
-  // MatPaginator Output
   pageEvent!: PageEvent;
 
   constructor(public customerModelService: CustomerModelService,
@@ -46,6 +46,13 @@ export class TableContainerComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.getTableData();
+    this.customerModelService.getCustomerModelData().subscribe((customerResponse) => {
+      this.customerData = customerResponse as CustomerData;
+      this.refreshData();
+    });
+    this.customerModelService.getCustomerFilterData().subscribe((filterResponse) => {
+      this.filterMap = filterResponse;
+    });
   }
 
   ngOnChanges() {
@@ -64,8 +71,9 @@ export class TableContainerComponent implements OnInit, OnChanges {
 
   getTableData() {
     this.loaderService.triggerLoader(true);
-    this.customerModelService.getPaginatedTableData(this.paginationOptions).subscribe((data) => {
+    this.customerModelService.getPaginatedTableData(this.paginationOptions, this.filterMap).subscribe((data) => {
       this.customerData = data as CustomerData;
+      this.customerModelService.setCustomerPagination(this.paginationOptions);
       this.refreshData();
     });
   }

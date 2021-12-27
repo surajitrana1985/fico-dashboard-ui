@@ -1,0 +1,16 @@
+form {
+  display: flex;
+
+  mat-form-field {
+    padding: 5px;
+  }
+
+  button {
+    width: 25px;
+    margin: auto;
+  }
+}
+
+mat-grid-tile {
+  background: lightblue;
+}

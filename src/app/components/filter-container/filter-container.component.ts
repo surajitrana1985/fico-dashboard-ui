@@ -1,14 +1,18 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSelectChange } from '@angular/material/select';
 import { MatTableDataSource } from '@angular/material/table';
 import { CustomerModelService } from '../../services/customer-model.service';
 import { TableColumn } from '../../models/table-column';
+import { CustomerData } from '../../models/customer';
+import { LoaderService } from '../../services/loader.service';
+import { Pagination } from '../../models/pagination';
 
 @Component({
   selector: 'app-filter-container',
   templateUrl: './filter-container.component.html',
-  styleUrls: ['./filter-container.component.scss']
+  styleUrls: ['./filter-container.component.scss'],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class FilterContainerComponent implements OnInit, OnChanges {
 
@@ -20,28 +24,48 @@ export class FilterContainerComponent implements OnInit, OnChanges {
 
   isFilterShown = false;
   numFilters: Array<any> = [];
-  fieldFilterData: Array<TableColumn> = [];
+  fieldFilterNumericData: Array<TableColumn> = [];
+  fieldFilterCategoricalData: Array<TableColumn> = [];
 
   numericFilterTypes = ['=', '!=', '>', '<', '>=', '<=', 'and', 'or', 'between', 'contains', '!contains'];
+  rangeFilter = ['=', '!=', '>', '<', '>=', '<='];
+
+  numericStepFilterTypes = ['and', 'or', 'between'];
   categoricalFilterTypes = ['=', '!=', 'contains', '!contains'];
-  operatorFilterData: Array<string> = [];
-  valueFilterData: Array<string> = [];
+  valueFilterDataCategorical: Array<string> = [];
   valueMultiSelect = false;
+  disableFilter = false;
 
   filterMap: any = {
-    0: {
-      field: '', operator: '', value1: '', value2: ''
+    'filter-0': {
+      field: '', join: '', operators: this.numericFilterTypes, operator1: '', value1: '', operator2: '', value2: '', showOperator2: false
+    },
+    'filter-1': {
+      field: '', join: '', operators: this.categoricalFilterTypes, operator1: '', value1: '', operator2: '', value2: '', showOperator2: false
     }
   };
   dataSource = new MatTableDataSource<any>([]);
 
-  constructor(public customerModelService: CustomerModelService) { }
+  paginationOptions: Pagination = {
+    page: 1,
+    limit: 5
+  };
 
-  ngOnInit(): void { }
+  constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
+
+  ngOnInit(): void {
+    this.customerModelService.getCustomerPagination().subscribe((paginationResponse: Pagination) => {
+      this.paginationOptions = paginationResponse;
+    });
+  }
 
   ngOnChanges() {
     this.tableColumns.forEach(item => {
-      this.fieldFilterData.push(item);
+      if (item.type === 'numeric') {
+        this.fieldFilterNumericData.push(item);
+      } else {
+        this.fieldFilterCategoricalData.push(item);
+      }
     });
     this.populateFilters();
   }
@@ -50,7 +74,6 @@ export class FilterContainerComponent implements OnInit, OnChanges {
     for (let key of Object.keys(this.filterMap)) {
       this.numFilters.push(this.filterMap[key]);
     }
-    console.log(this.numFilters);
     this.dataSource = new MatTableDataSource<any>(this.numFilters);
   }
 
@@ -69,27 +92,57 @@ export class FilterContainerComponent implements OnInit, OnChanges {
     this.dataSource = new MatTableDataSource<any>(this.numFilters);
   }
 
-  selectColumnFilter(event: MatSelectChange, row: any, column: string) {
+  selectColumnFilter(event: MatSelectChange, column: string, index: number) {
     if (column === 'field') {
       const fieldType = this.tableColumns.filter(item => item.field === event.value)[0].type;
-      this.operatorFilterData = fieldType === 'numeric' ?
-        Array.from(this.numericFilterTypes) :
-        Array.from(this.categoricalFilterTypes);
       if (fieldType === 'categorical') {
         if (this.shouldFetchDistinctCategorical(event.value)) {
           this.valueMultiSelect = true;
           this.customerModelService.getUniqueTableColumnValues(event.value).subscribe((data: any) => {
-            this.valueFilterData = data['distinctValues'];
+            this.valueFilterDataCategorical = data['distinctValues'];
           });
         } else {
           this.valueMultiSelect = false;
         }
       }
     }
+    if (column === 'operator' && this.isJoinOperator(event.value)) {
+      column = 'join';
+      this.filterMap[`filter-${index}`].showOperator2 = true;
+    } else {
+      if (column === 'operator') {
+        this.filterMap[`filter-${index}`].join = null;
+        this.filterMap[`filter-${index}`].operator1 = null;
+        this.filterMap[`filter-${index}`].operator2 = null;
+        this.filterMap[`filter-${index}`].value2 = null;
+        this.filterMap[`filter-${index}`].showOperator2 = false;
+      }
+    }
+    this.filterMap[`filter-${index}`][column] = event.value;
+  }
+
+  isJoinOperator(operator: string) {
+    return this.numericStepFilterTypes.includes(operator);
   }
 
   shouldFetchDistinctCategorical(field: string) {
     return field !== 'customerName' && field !== 'address';
+  }
+
+  onValueChange(event: any, column: string, index: number) {
+    if (!this.numericStepFilterTypes.includes(this.filterMap[`filter-${index}`][column])) {
+      this.filterMap[`filter-${index}`][`${column}`] = event.target.value;
+    }
+  }
+
+  onApplyFilter() {
+    this.disableFilter = true;
+    this.loaderService.triggerLoader(true);
+    this.customerModelService.applyFilter(this.filterMap, this.paginationOptions).subscribe(response => {
+      this.disableFilter = false;
+      this.customerModelService.setCustomerModelData(response as CustomerData);
+      this.customerModelService.setCustomerFilterData(this.filterMap);
+    });
   }
 
 }

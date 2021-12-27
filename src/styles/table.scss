@@ -1,0 +1,18 @@
+table.customer-table {
+  width: 100%;
+}
+
+table.filter-table {
+  width: 60%;
+}
+
+th.mat-header-cell {
+  color: #015c97 !important;
+}
+
+table.filter-table > th.mat-header-cell,
+td.mat-cell,
+td.mat-footer-cell {
+  border: none !important;
+  border-bottom-style: none;
+}
