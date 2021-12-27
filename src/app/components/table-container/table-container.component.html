@@ -1,0 +1,13 @@
+<div class="mat-elevation-z8 margin-top-20" *ngIf="tableColumns && displayedColumns.length">
+    <table mat-table [dataSource]="dataSource" class="customer-table">
+        <ng-container *ngFor="let columnItem of tableColumns; let colIndex = index" matColumnDef="{{columnItem.field}}">
+            <th mat-header-cell *matHeaderCellDef>{{columnItem.header}}</th>
+            <td mat-cell *matCellDef="let element">{{element[columnItem.field]}}</td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+    <mat-paginator [length]="collectionSize" [pageSize]="pageSize" [pageSizeOptions]="pageSizeOptions"
+        (page)="changePageSize($event)" aria-label="Select page">
+    </mat-paginator>
+</div>

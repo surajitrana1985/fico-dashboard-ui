@@ -1,0 +1,66 @@
+<mat-button-toggle value="left" aria-label="Text align left" (change)="onShowFilterChange($event)">
+    <mat-icon>filter_alt</mat-icon>{{filterBtnLabel}}
+</mat-button-toggle>
+<div class="margin-top-20" *ngIf="displayedColumns.length">
+    <table mat-table [dataSource]="dataSource" class="filter-table">
+        <ng-container matColumnDef="Field">
+            <th mat-header-cell *matHeaderCellDef>Field</th>
+            <td mat-cell *matCellDef="let element">
+                <mat-form-field>
+                    <mat-select (selectionChange)="selectColumnFilter($event, element, 'field')">
+                        <mat-option *ngFor="let item of fieldFilterData" [value]="item.field">
+                            {{item.header}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Operator">
+            <th mat-header-cell *matHeaderCellDef>Operator</th>
+            <td mat-cell *matCellDef="let element">
+                <mat-form-field>
+                    <mat-select (selectionChange)="selectColumnFilter($event, element, 'operator')">
+                        <mat-option *ngFor="let item of operatorFilterData" [value]="item">
+                            {{item}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Value">
+            <th mat-header-cell *matHeaderCellDef>Value</th>
+            <td mat-cell *matCellDef="let element">
+                <mat-form-field *ngIf="valueMultiSelect">
+                    <mat-select multiple (selectionChange)="selectColumnFilter($event, element, 'value')">
+                        <mat-option *ngFor="let item of valueFilterData" [value]="item">
+                            {{item}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+                <mat-form-field *ngIf="!valueMultiSelect">
+                    <input matInput>
+                </mat-form-field>
+            </td>
+        </ng-container>
+
+        <ng-container matColumnDef="Actions">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element">
+                <span>
+                    <button mat-icon-button aria-label="Add more filter" class="btn-transparent btn-cursor" (click)="onFilterAdd()">
+                        <mat-icon>add_card</mat-icon>
+                    </button>
+                    <button mat-icon-button aria-label="Remove this filter"
+                        class="btn-transparent btn-cursor" (click)="onFilterRemove()"
+                        *ngIf="numFilters.length > 1">
+                        <mat-icon>disabled_by_default</mat-icon>
+                    </button>
+                </span>
+            </td>
+        </ng-container>
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    </table>
+</div>
