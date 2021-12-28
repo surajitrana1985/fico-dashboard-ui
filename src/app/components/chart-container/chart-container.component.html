@@ -1,1 +1,15 @@
-<p>chart-container works!</p>
+<mat-tab-group>
+    <mat-tab label="Bar Plot">
+        <div class="chart-container">
+            <canvas baseChart [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions"
+                [legend]="barChartLegend" [type]="'bar'">
+            </canvas>
+        </div>
+    </mat-tab>
+    <mat-tab label="Scatter Plot">
+        <div class="chart-container">
+            <canvas baseChart [datasets]="scatterChartData" [options]="scatterChartOptions" [type]="scatterChartType">
+            </canvas>
+        </div>
+    </mat-tab>
+</mat-tab-group>

@@ -14,7 +14,12 @@
         </div>
       </mat-tab>
       <mat-tab label="Chart Data">
-        <app-chart-container></app-chart-container>
+        <span class="float-left min-width-500">
+          <app-chart-filter-container [tableColumns]="columns"></app-chart-filter-container>
+        </span>
+        <span>
+          <app-chart-container></app-chart-container>
+        </span>
       </mat-tab>
     </mat-tab-group>
   </div>

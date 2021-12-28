@@ -7,6 +7,7 @@ import { TableColumn } from '../../models/table-column';
 import { CustomerData } from '../../models/customer';
 import { LoaderService } from '../../services/loader.service';
 import { Pagination } from '../../models/pagination';
+import { CommonUtils } from 'src/app/utils/common-utils';
 
 @Component({
   selector: 'app-filter-container',
@@ -96,7 +97,7 @@ export class FilterContainerComponent implements OnInit, OnChanges {
     if (column === 'field') {
       const fieldType = this.tableColumns.filter(item => item.field === event.value)[0].type;
       if (fieldType === 'categorical') {
-        if (this.shouldFetchDistinctCategorical(event.value)) {
+        if (CommonUtils.shouldFetchDistinctCategorical(event.value)) {
           this.valueMultiSelect = true;
           this.customerModelService.getUniqueTableColumnValues(event.value).subscribe((data: any) => {
             this.valueFilterDataCategorical = data['distinctValues'];
@@ -106,7 +107,7 @@ export class FilterContainerComponent implements OnInit, OnChanges {
         }
       }
     }
-    if (column === 'operator' && this.isJoinOperator(event.value)) {
+    if (column === 'operator' && CommonUtils.isJoinOperator(this.numericStepFilterTypes, event.value)) {
       column = 'join';
       this.filterMap[`filter-${index}`].showOperator2 = true;
     } else {
@@ -119,14 +120,6 @@ export class FilterContainerComponent implements OnInit, OnChanges {
       }
     }
     this.filterMap[`filter-${index}`][column] = event.value;
-  }
-
-  isJoinOperator(operator: string) {
-    return this.numericStepFilterTypes.includes(operator);
-  }
-
-  shouldFetchDistinctCategorical(field: string) {
-    return field !== 'customerName' && field !== 'address';
   }
 
   onValueChange(event: any, column: string, index: number) {

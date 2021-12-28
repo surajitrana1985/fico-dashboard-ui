@@ -15,6 +15,7 @@ export class CustomerModelService {
   customerDataSubject = new BehaviorSubject<CustomerData>({ customers: [], totalRecords: 0 });
   customerFilterSubject = new BehaviorSubject<Object>({});
   customerPaginationSubject = new BehaviorSubject<Pagination>({ page: 1, limit: 5 });
+  chartDataSubject = new BehaviorSubject<any>({});
 
   constructor(public http: HttpClient) { }
 
@@ -43,6 +44,11 @@ export class CustomerModelService {
     return this.http.post(url, requestParam);
   }
 
+  applyChartFilter(filterOptions: any) {
+    const url = `${this.API_URL}/filter-chart`;
+    return this.http.post(url, filterOptions);
+  }
+
   setCustomerModelData(value: CustomerData) {
     this.customerDataSubject.next(value);
   }
@@ -65,6 +71,14 @@ export class CustomerModelService {
 
   getCustomerPagination(): Observable<Pagination> {
     return this.customerPaginationSubject.asObservable();
+  }
+
+  setChartData(value: any) {
+    this.chartDataSubject.next(value);
+  }
+
+  getChartData(): Observable<any> {
+    return this.chartDataSubject.asObservable();
   }
 
 }

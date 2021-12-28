@@ -1,17 +1,18 @@
 /* You can add global styles to this file, and also import other style files */
-@import '~@angular/material/prebuilt-themes/indigo-pink.css';
-@import './styles/layout.scss';
-@import './styles/table.scss';
-@import './styles/custom-mat.scss';
-@import './styles/button.scss';
+@import "~@angular/material/prebuilt-themes/indigo-pink.css";
+@import "./styles/layout.scss";
+@import "./styles/table.scss";
+@import "./styles/custom-mat.scss";
+@import "./styles/button.scss";
 
 html,
 body {
   height: 100%;
+  background-color: #f9f9f9;
 }
 body {
   margin: 0;
-  font-family: Roboto, 'Helvetica Neue', sans-serif;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
 .toolbar {

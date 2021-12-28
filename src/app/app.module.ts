@@ -12,6 +12,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { NgChartsModule } from 'ng2-charts';
 
 import { AppRoutingModule } from './app-routing.module';
 
@@ -21,13 +22,15 @@ import { TableContainerComponent } from './components/table-container/table-cont
 import { ChartContainerComponent } from './components/chart-container/chart-container.component';
 import { FilterContainerComponent } from './components/filter-container/filter-container.component';
 import { FormsModule } from '@angular/forms';
+import { ChartFilterContainerComponent } from './components/chart-filter-container/chart-filter-container.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     TableContainerComponent,
     ChartContainerComponent,
-    FilterContainerComponent
+    FilterContainerComponent,
+    ChartFilterContainerComponent
   ],
   imports: [
     BrowserModule,
@@ -45,7 +48,8 @@ import { FormsModule } from '@angular/forms';
     MatIconModule,
     MatFormFieldModule,
     MatSelectModule,
-    MatInputModule
+    MatInputModule,
+    NgChartsModule
   ],
   providers: [],
   bootstrap: [AppComponent]

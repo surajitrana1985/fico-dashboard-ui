@@ -1,0 +1,36 @@
+<form #form="ngForm" class="padding-20">
+    <h3>Chart Filters</h3>
+    <mat-list role="list">
+        <mat-list-item role="listitem" class="margin-top-20" *ngFor="let filter of fieldFilterCategoricalData">
+            <mat-form-field appearance="standard">
+                <mat-label>{{filter.header}}</mat-label>
+                <mat-select (selectionChange)="selectColumnFilter($event, 'field')" disabled>
+                    <mat-option *ngFor="let item of fieldFilterCategoricalData" [value]="filter.field">
+                        {{item.header}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="standard">
+                <mat-label>Value</mat-label>
+                <mat-select multiple (selectionChange)="selectColumnFilter($event, filter.field)">
+                    <mat-option *ngFor="let item of filterMap[filter.field].values" [value]="item">
+                        {{item}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </mat-list-item>
+        <mat-list-item role="listitem" class="margin-top-20">
+            <mat-form-field appearance="standard">
+                <mat-label>Group By</mat-label>
+                <mat-select (selectionChange)="selectColumnFilter($event, 'groupby')">
+                    <mat-option *ngFor="let item of fieldFilterCategoricalData" [value]="item">
+                        {{item.header}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </mat-list-item>
+    </mat-list>
+    <span class="btn-margin-std">
+        <button mat-raised-button color="primary" (click)="onApplyFilter()">Apply Filter</button>
+    </span>
+</form>
