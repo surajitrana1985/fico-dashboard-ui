@@ -1,0 +1,77 @@
+<span class="float-left">
+    <mat-button-toggle value="left" aria-label="Text align left" (change)="onShowFilterChange($event)">
+        <mat-icon>filter_alt</mat-icon>{{filterBtnLabel}}
+    </mat-button-toggle>
+</span>
+<form #form="ngForm" class="padding-20" *ngIf="isFilterShown">
+    <mat-list role="list">
+        <mat-list-item role="listitem" class="margin-top-20">
+            <span class="float-left margin-top-20">
+                <mat-form-field appearance="standard">
+                    <mat-label>Select Field</mat-label>
+                    <mat-select (selectionChange)="selectColumnFilter($event, 'select', '')">
+                        <mat-option *ngFor="let item of fieldFilterData" [value]="item.field">
+                            {{item.header}}
+                        </mat-option>
+                    </mat-select>
+                </mat-form-field>
+            </span>
+            <span class="margin-top-20 margin-left-20">
+                <button mat-raised-button color="primary" (click)="onFilterAdd()">Add Filter</button>
+            </span>
+            <span class="margin-top-20 margin-left-20">
+                <button mat-raised-button color="primary" (click)="onApplyFilter()">Apply Filter</button>
+            </span>
+        </mat-list-item>
+    </mat-list>
+</form>
+<form #form="ngForm" class="padding-side-20" *ngIf="isFilterShown">
+    <mat-list role="list">
+        <mat-list-item role="listitem" class="margin-top-20" *ngFor="let filterItem of filterFieldCollection">
+            <mat-label class="table-label-filter">{{filterItem.header}}</mat-label>
+            <button mat-icon-button aria-label="Remove Filter" color="accent" (click)="onRemoveFilter(filterItem)">
+                <mat-icon>cancel</mat-icon>
+            </button>
+            <mat-form-field appearance="standard" class="margin-left-20">
+                <mat-label>Operator</mat-label>
+                <mat-select (selectionChange)="selectColumnFilter($event, 'operator', filterItem.field)">
+                    <mat-option *ngFor="let item of filterItem.operators" [value]="item">
+                        {{item}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="standard" *ngIf="filterItem.showOperator1" class="margin-left-20">
+                <mat-label>Range Operator</mat-label>
+                <mat-select (selectionChange)="selectColumnFilter($event, 'operator1', filterItem.field)">
+                    <mat-option *ngFor="let item of filterItem.rangeOperators" [value]="item">
+                        {{item}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="standard" class="margin-left-20" *ngIf="!filterItem.multiselect">
+                <mat-label>Value</mat-label>
+                <input matInput (change)="onValueChange($event, 'value1', filterItem.field)">
+            </mat-form-field>
+            <mat-form-field appearance="standard" class="margin-left-20" *ngIf="filterItem.multiselect">
+                <mat-label>Value</mat-label>
+                <mat-select multiple (selectionChange)="selectColumnFilter($event, 'value1', filterItem.field)">
+                    <mat-option *ngFor="let item of filterItem.values" [value]="item">
+                        {{item}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="standard" *ngIf="filterItem.showOperator2" class="margin-left-20">
+                <mat-label>Range Operator</mat-label>
+                <mat-select (selectionChange)="selectColumnFilter($event, 'operator2', filterItem.field)">
+                    <mat-option *ngFor="let item of filterItem.rangeOperators" [value]="item">
+                        {{item}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+            <mat-form-field appearance="standard" *ngIf="filterItem.showOperator2" class="margin-left-20">
+                <mat-label>Value</mat-label>
+                <input matInput (change)="onValueChange($event, 'value2', filterItem.field)">
+            </mat-form-field>
+        </mat-list-item>
+    </mat-list>
+</form>

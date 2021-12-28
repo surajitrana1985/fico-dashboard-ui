@@ -12,6 +12,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
+import { MatChipsModule } from '@angular/material/chips';
+
 import { NgChartsModule } from 'ng2-charts';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -23,6 +25,7 @@ import { ChartContainerComponent } from './components/chart-container/chart-cont
 import { FilterContainerComponent } from './components/filter-container/filter-container.component';
 import { FormsModule } from '@angular/forms';
 import { ChartFilterContainerComponent } from './components/chart-filter-container/chart-filter-container.component';
+import { TableFilterContainerComponent } from './components/table-filter-container/table-filter-container.component';
 
 @NgModule({
   declarations: [
@@ -30,7 +33,8 @@ import { ChartFilterContainerComponent } from './components/chart-filter-contain
     TableContainerComponent,
     ChartContainerComponent,
     FilterContainerComponent,
-    ChartFilterContainerComponent
+    ChartFilterContainerComponent,
+    TableFilterContainerComponent
   ],
   imports: [
     BrowserModule,
@@ -49,6 +53,7 @@ import { ChartFilterContainerComponent } from './components/chart-filter-contain
     MatFormFieldModule,
     MatSelectModule,
     MatInputModule,
+    MatChipsModule,
     NgChartsModule
   ],
   providers: [],

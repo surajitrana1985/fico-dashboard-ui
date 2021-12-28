@@ -9,7 +9,7 @@
     <mat-tab-group (selectedTabChange)="onTabChange($event)">
       <mat-tab label="Customer Data">
         <div class="table-content">
-          <app-filter-container [tableColumns]="columns"></app-filter-container>
+          <app-table-filter-container [tableColumns]="columns"></app-table-filter-container>
           <app-table-container [tableColumns]="columns"></app-table-container>
         </div>
       </mat-tab>
