@@ -7,18 +7,26 @@
 <div class="content" role="main">
   <div class="container-main">
     <mat-tab-group>
-      <mat-tab label="Table Data">
+      <mat-tab label="Customer Data">
         <div class="table-content">
           <app-filter-container [tableColumns]="columns"></app-filter-container>
           <app-table-container [tableColumns]="columns"></app-table-container>
         </div>
       </mat-tab>
-      <mat-tab label="Chart Data">
-        <span class="float-left min-width-500">
+      <mat-tab label="Customer Analysis - Bar Chart">
+        <span class="float-left">
           <app-chart-filter-container [tableColumns]="columns"></app-chart-filter-container>
         </span>
-        <span>
-          <app-chart-container></app-chart-container>
+        <span class="float-right min-width-500 chart-content">
+          <app-chart-container [chartType]="'bar'"></app-chart-container>
+        </span>
+      </mat-tab>
+      <mat-tab label="Customer Analysis - Scatter Chart">
+        <span class="float-left">
+          <app-chart-filter-container [tableColumns]="columns"></app-chart-filter-container>
+        </span>
+        <span class="float-right min-width-500 chart-content">
+          <app-chart-container [chartType]="'scatter'"></app-chart-container>
         </span>
       </mat-tab>
     </mat-tab-group>

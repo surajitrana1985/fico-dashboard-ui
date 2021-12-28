@@ -1,8 +1,9 @@
-import { ChangeDetectionStrategy, Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnInit, ViewChild } from '@angular/core';
 import { ChartOptions, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { CustomerModelService } from 'src/app/services/customer-model.service';
-import { LoaderService } from 'src/app/services/loader.service';
+
+import { CustomerModelService } from '../../services/customer-model.service';
+import { LoaderService } from '../../services/loader.service';
 @Component({
   selector: 'app-chart-container',
   templateUrl: './chart-container.component.html',
@@ -47,6 +48,8 @@ export class ChartContainerComponent implements OnInit {
 
   @ViewChild(BaseChartDirective) chart!: BaseChartDirective;
 
+  @Input('chartType') chartType: string = '';
+
   constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
 
   ngOnInit(): void {
@@ -54,7 +57,11 @@ export class ChartContainerComponent implements OnInit {
       if (response && response.customers) {
         this.chartData = response.customers;
         this.loaderService.triggerLoader(true, 'chart-container');
-        this.parseBarChartSeries();
+        if (this.chartType === 'bar') {
+          this.parseBarChartSeries();
+        } else {
+          this.parseScatterChartSeries();
+        }
       }
     });
   }
@@ -92,6 +99,10 @@ export class ChartContainerComponent implements OnInit {
       }
     });
     return seriesData;
+  }
+
+  parseScatterChartSeries() {
+
   }
 
 }
