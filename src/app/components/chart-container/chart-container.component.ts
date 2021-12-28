@@ -15,10 +15,8 @@ export class ChartContainerComponent implements OnInit {
     scaleShowVerticalLines: false,
     responsive: true
   };
-
   barChartType: ChartType = 'bar';
   barChartLegend = false;
-
   barChartLabels = ['', ''];
   barChartData = [
     { data: [0, 0, 0, 0, 0], label: '' },
@@ -28,40 +26,40 @@ export class ChartContainerComponent implements OnInit {
   scatterChartOptions: ChartOptions = {
     responsive: true,
   };
-
   scatterChartData = [
     {
       data: [
-        { x: 1, y: 1 },
-        { x: 2, y: 3 },
-        { x: 3, y: -2 },
-        { x: 4, y: 4 },
-        { x: 5, y: -3, r: 20 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
+        { x: 0, y: 0 },
       ],
-      label: 'Series A',
-      pointRadius: 10,
+      label: '',
+      pointRadius: 0
     },
   ];
   scatterChartType: ChartType = 'scatter';
 
-  chartData: Array<any> = [];
 
   @ViewChild(BaseChartDirective) chart!: BaseChartDirective;
 
+  chartData: Array<any> = [];
+  chartOptions: any = {};
   @Input('chartType') chartType: string = '';
 
   constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
 
   ngOnInit(): void {
     this.customerModelService.getChartData().subscribe(response => {
-      if (response && response.customers) {
-        this.chartData = response.customers;
-        this.loaderService.triggerLoader(true, 'chart-container');
-        if (this.chartType === 'bar') {
-          this.parseBarChartSeries();
-        } else {
-          this.parseScatterChartSeries();
-        }
+      this.chartData = response.chartData;
+      this.chartType = response.chartType;
+      this.chartOptions = response.chartOptions || {};
+      this.loaderService.triggerLoader(true, 'chart-container');
+      if (this.chartType === 'bar') {
+        this.parseBarChartSeries();
+      } else {
+        this.parseScatterChartSeries();
       }
     });
   }
@@ -84,7 +82,6 @@ export class ChartContainerComponent implements OnInit {
     });
     this.barChartLabels = [...this.barChartLabels];
     this.barChartData = JSON.parse(JSON.stringify(this.barChartData));
-    console.log(this.barChartData, this.barChartLabels);
     this.barChartLegend = true;
     this.chart.update();
     this.loaderService.triggerLoader(false, 'chart-container');
@@ -102,7 +99,19 @@ export class ChartContainerComponent implements OnInit {
   }
 
   parseScatterChartSeries() {
-
+    if (this.chartData && this.chartOptions.yaxis && this.chartOptions.xaxis) {
+      this.scatterChartData[0].data.length = 0;
+      this.scatterChartData[0].label = `${this.chartOptions.yaxis.header} VS ${this.chartOptions.xaxis.header}`;
+      this.scatterChartData[0].pointRadius = 10;
+      this.chartData.forEach((data) => {
+        this.scatterChartData[0].data.push({
+          x: data[this.chartOptions.xaxis.field],
+          y: data[this.chartOptions.yaxis.field]
+        });
+      });
+      this.chart.update();
+    }
+    this.loaderService.triggerLoader(false, 'chart-container');
   }
 
 }

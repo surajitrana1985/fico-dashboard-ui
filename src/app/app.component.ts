@@ -1,4 +1,5 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { MatTabChangeEvent } from '@angular/material/tabs';
 import { TableColumn } from './models/table-column';
 import { LoaderService } from './services/loader.service';
 
@@ -78,6 +79,7 @@ export class AppComponent implements OnInit {
   customerData: any = {};
   filterLabel = 'Show Filter';
   showFilter = false;
+  containerType: string = '';
 
   constructor(public loaderService: LoaderService, public cdRef: ChangeDetectorRef) { }
 
@@ -86,6 +88,19 @@ export class AppComponent implements OnInit {
       this.showLoader = response;
       this.cdRef.detectChanges();
     });
+  }
+
+  onTabChange(event: MatTabChangeEvent) {
+    switch (event.index) {
+      case 1:
+        this.containerType = 'bar';
+        break;
+      case 2:
+        this.containerType = 'scatter';
+        break;
+      default:
+        this.containerType = 'table';
+    }
   }
 
 }

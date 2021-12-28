@@ -7,7 +7,7 @@ import { TableColumn } from '../../models/table-column';
 import { CustomerData } from '../../models/customer';
 import { LoaderService } from '../../services/loader.service';
 import { Pagination } from '../../models/pagination';
-import { CommonUtils } from 'src/app/utils/common-utils';
+import { CommonUtils } from '../../utils/common-utils';
 
 @Component({
   selector: 'app-filter-container',

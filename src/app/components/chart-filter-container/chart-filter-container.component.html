@@ -19,11 +19,32 @@
                 </mat-select>
             </mat-form-field>
         </mat-list-item>
-        <mat-list-item role="listitem" class="margin-top-20">
+        <mat-list-item role="listitem" class="margin-top-20" *ngIf="chartType === 'bar'">
             <mat-form-field appearance="standard">
                 <mat-label>Group By</mat-label>
                 <mat-select (selectionChange)="selectColumnFilter($event, 'groupby')">
                     <mat-option *ngFor="let item of fieldFilterCategoricalData" [value]="item">
+                        {{item.header}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </mat-list-item>
+
+        <mat-list-item role="listitem" class="margin-top-20" *ngIf="chartType === 'scatter'">
+            <mat-form-field appearance="standard">
+                <mat-label>X-Axis</mat-label>
+                <mat-select (selectionChange)="selectPlotAxis($event, 'xaxis')">
+                    <mat-option *ngFor="let item of fieldFilterNumericData" [value]="item">
+                        {{item.header}}
+                    </mat-option>
+                </mat-select>
+            </mat-form-field>
+        </mat-list-item>
+        <mat-list-item role="listitem" class="margin-top-20" *ngIf="chartType === 'scatter'">
+            <mat-form-field appearance="standard">
+                <mat-label>Y-Axis</mat-label>
+                <mat-select (selectionChange)="selectPlotAxis($event, 'yaxis')">
+                    <mat-option *ngFor="let item of fieldFilterNumericData" [value]="item">
                         {{item.header}}
                     </mat-option>
                 </mat-select>

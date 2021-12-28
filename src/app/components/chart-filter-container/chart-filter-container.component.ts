@@ -1,6 +1,6 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
 import { MatSelectChange } from '@angular/material/select';
-import { CommonUtils } from 'src/app/utils/common-utils';
+import { CommonUtils } from '../../utils/common-utils';
 import { TableColumn } from '../../models/table-column';
 import { CustomerModelService } from '../../services/customer-model.service';
 import { LoaderService } from '../../services/loader.service';
@@ -13,13 +13,27 @@ import { LoaderService } from '../../services/loader.service';
 export class ChartFilterContainerComponent implements OnInit, OnChanges {
 
   @Input('tableColumns') tableColumns: Array<TableColumn> = [];
+  @Input('chartType') chartType: string = '';
 
   numericStepFilterTypes = ['and', 'or', 'between'];
   fieldFilterCategoricalData: Array<TableColumn> = [];
+  fieldFilterNumericData: Array<TableColumn> = [];
   valueFilterDataCategorical: Array<string> = [];
   categoricalFieldData: Array<TableColumn> = [];
   filterMap: any = {};
   currentFilterField = '';
+  chartOptions: any = {
+    xaxis: {
+      field: '',
+      header: '',
+      type: ''
+    },
+    yaxis: {
+      field: '',
+      header: '',
+      type: ''
+    }
+  };
 
   constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
 
@@ -27,13 +41,15 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
 
   ngOnChanges() {
     this.tableColumns.forEach(item => {
-      if (item.type !== 'numeric' && CommonUtils.shouldFetchDistinctCategorical(item.field)) {
+      if (CommonUtils.shouldFetchDistinctCategorical(item)) {
         this.fieldFilterCategoricalData.push(item);
         this.filterMap[item.field] = {
           values: [],
           selectedValues: []
         };
         this.getFilterValues(item.field);
+      } else if (CommonUtils.shouldFetchDistinctNumeric(item)) {
+        this.fieldFilterNumericData.push(item);
       }
     });
     this.filterMap['groupby'] = '';
@@ -47,6 +63,10 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
     }
   }
 
+  selectPlotAxis(event: MatSelectChange, axis: string) {
+    this.chartOptions[axis] = event.value;
+  }
+
   getFilterValues(field: string) {
     this.customerModelService.getUniqueTableColumnValues(field).subscribe((data: any) => {
       this.filterMap[field].values = data['distinctValues'];
@@ -55,8 +75,12 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
 
   onApplyFilter() {
     this.loaderService.triggerLoader(true, 'chart-filter-container');
-    this.customerModelService.applyChartFilter(this.filterMap).subscribe(response => {
-      this.customerModelService.setChartData(response);
+    this.customerModelService.applyChartFilter(this.filterMap).subscribe((response: any) => {
+      this.customerModelService.setChartData({
+        chartData: response.customers,
+        chartType: this.chartType,
+        chartOptions: this.chartOptions
+      });
       this.loaderService.triggerLoader(false, 'chart-filter-container');
     });
   }

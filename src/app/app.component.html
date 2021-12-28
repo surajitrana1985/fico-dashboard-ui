@@ -6,7 +6,7 @@
 
 <div class="content" role="main">
   <div class="container-main">
-    <mat-tab-group>
+    <mat-tab-group (selectedTabChange)="onTabChange($event)">
       <mat-tab label="Customer Data">
         <div class="table-content">
           <app-filter-container [tableColumns]="columns"></app-filter-container>
@@ -15,18 +15,20 @@
       </mat-tab>
       <mat-tab label="Customer Analysis - Bar Chart">
         <span class="float-left">
-          <app-chart-filter-container [tableColumns]="columns"></app-chart-filter-container>
+          <app-chart-filter-container [tableColumns]="columns" [chartType]="'bar'">
+          </app-chart-filter-container>
         </span>
         <span class="float-right min-width-500 chart-content">
-          <app-chart-container [chartType]="'bar'"></app-chart-container>
+          <app-chart-container [chartType]="containerType"></app-chart-container>
         </span>
       </mat-tab>
       <mat-tab label="Customer Analysis - Scatter Chart">
         <span class="float-left">
-          <app-chart-filter-container [tableColumns]="columns"></app-chart-filter-container>
+          <app-chart-filter-container [tableColumns]="columns" [chartType]="'scatter'">
+          </app-chart-filter-container>
         </span>
         <span class="float-right min-width-500 chart-content">
-          <app-chart-container [chartType]="'scatter'"></app-chart-container>
+          <app-chart-container [chartType]="containerType"></app-chart-container>
         </span>
       </mat-tab>
     </mat-tab-group>

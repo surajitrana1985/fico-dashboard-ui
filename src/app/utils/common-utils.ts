@@ -1,7 +1,13 @@
+import { TableColumn } from "../models/table-column";
+
 export class CommonUtils {
 
-    static shouldFetchDistinctCategorical(field: string) {
-        return field !== 'customerName' && field !== 'address';
+    static shouldFetchDistinctCategorical(item: TableColumn) {
+        return item.type !== 'numeric' && item.field !== 'customerName' && item.field !== 'address';
+    }
+
+    static shouldFetchDistinctNumeric(item: TableColumn) {
+        return item.type === 'numeric' && item.field !== 'customerId';
     }
 
     static isJoinOperator(numericStepFilterTypes: Array<string>, operator: string) {
