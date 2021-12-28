@@ -10,7 +10,7 @@ export class LoaderService {
 
   constructor() { }
 
-  triggerLoader(display: boolean) {
+  triggerLoader(display: boolean, screen: string) {
     this.loaderSubject.next(display);
   }
 

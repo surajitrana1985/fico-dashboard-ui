@@ -54,8 +54,10 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
   }
 
   onApplyFilter() {
+    this.loaderService.triggerLoader(true, 'chart-filter-container');
     this.customerModelService.applyChartFilter(this.filterMap).subscribe(response => {
       this.customerModelService.setChartData(response);
+      this.loaderService.triggerLoader(false, 'chart-filter-container');
     });
   }
 

@@ -50,12 +50,11 @@ export class ChartContainerComponent implements OnInit {
   constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
 
   ngOnInit(): void {
-    this.loaderService.triggerLoader(true);
     this.customerModelService.getChartData().subscribe(response => {
       if (response && response.customers) {
         this.chartData = response.customers;
+        this.loaderService.triggerLoader(true, 'chart-container');
         this.parseBarChartSeries();
-        this.loaderService.triggerLoader(false);
       }
     });
   }
@@ -81,7 +80,7 @@ export class ChartContainerComponent implements OnInit {
     console.log(this.barChartData, this.barChartLabels);
     this.barChartLegend = true;
     this.chart.update();
-    this.loaderService.triggerLoader(false);
+    this.loaderService.triggerLoader(false, 'chart-container');
   }
 
   getSeriesData(field: string) {

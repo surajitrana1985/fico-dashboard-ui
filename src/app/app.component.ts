@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { TableColumn } from './models/table-column';
 import { LoaderService } from './services/loader.service';
 
@@ -79,11 +79,12 @@ export class AppComponent implements OnInit {
   filterLabel = 'Show Filter';
   showFilter = false;
 
-  constructor(public loaderService: LoaderService) { }
+  constructor(public loaderService: LoaderService, public cdRef: ChangeDetectorRef) { }
 
   ngOnInit() {
     this.loaderService.getLoaderState().subscribe(response => {
       this.showLoader = response;
+      this.cdRef.detectChanges();
     });
   }
 

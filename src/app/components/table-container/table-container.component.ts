@@ -66,11 +66,11 @@ export class TableContainerComponent implements OnInit, OnChanges {
     this.collectionSize = this.customerData.totalRecords;
     this.dataSource = new MatTableDataSource<any>(this.tableData);
     this.cdRef.detectChanges();
-    this.loaderService.triggerLoader(false);
+    this.loaderService.triggerLoader(false, 'table-container');
   }
 
   getTableData() {
-    this.loaderService.triggerLoader(true);
+    this.loaderService.triggerLoader(true, 'table-container');
     this.customerModelService.getPaginatedTableData(this.paginationOptions, this.filterMap).subscribe((data) => {
       this.customerData = data as CustomerData;
       this.customerModelService.setCustomerPagination(this.paginationOptions);

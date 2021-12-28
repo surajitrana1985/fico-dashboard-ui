@@ -130,7 +130,7 @@ export class FilterContainerComponent implements OnInit, OnChanges {
 
   onApplyFilter() {
     this.disableFilter = true;
-    this.loaderService.triggerLoader(true);
+    this.loaderService.triggerLoader(true, 'filter-container');
     this.customerModelService.applyFilter(this.filterMap, this.paginationOptions).subscribe(response => {
       this.disableFilter = false;
       this.customerModelService.setCustomerModelData(response as CustomerData);
