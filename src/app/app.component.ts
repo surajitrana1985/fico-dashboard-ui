@@ -81,6 +81,7 @@ export class AppComponent implements OnInit, OnDestroy {
   filterLabel = 'Show Filter';
   showFilter = false;
   containerType: string = '';
+  invertColors = false;
   destroy$: Subject<string> = new Subject<string>();
   constructor(public loaderService: LoaderService, public cdRef: ChangeDetectorRef) { }
 
@@ -103,6 +104,11 @@ export class AppComponent implements OnInit, OnDestroy {
       default:
         this.containerType = 'table';
     }
+  }
+
+  onInvertColor(invertColors: boolean) {
+    this.invertColors = invertColors;
+    document.documentElement.classList.toggle('dark-mode');
   }
 
   ngOnDestroy() {

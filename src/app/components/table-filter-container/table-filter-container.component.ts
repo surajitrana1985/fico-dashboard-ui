@@ -169,6 +169,7 @@ export class TableFilterContainerComponent implements OnInit, OnChanges, OnDestr
     this.filterFieldCollection = this.filterFieldCollection.filter(item => {
       return item.field !== filterItem.field;
     });
+    this.onApplyFilter();
     this.fieldFilterData.push({
       field: filterItem.field,
       header: filterItem.header,

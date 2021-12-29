@@ -2,6 +2,12 @@
 <div class="toolbar" role="banner">
   <span class="padding-std">FICO Dashboard</span>
   <div class="spacer"></div>
+  <span class="invert-btn">
+    <mat-icon aria-hidden="false" aria-label="Invert Application Color" (click)="onInvertColor(true)"
+      *ngIf="!invertColors">invert_colors</mat-icon>
+    <mat-icon aria-hidden="false" aria-label="Revert Application Color" (click)="onInvertColor(false)"
+      *ngIf="invertColors">invert_colors_off</mat-icon>
+  </span>
 </div>
 
 <div class="content" role="main">

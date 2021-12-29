@@ -4,7 +4,8 @@
 
 export const environment = {
   production: false,
-  EXPRESS_API_URL: 'http://localhost:9000'
+  EXPRESS_API_URL: 'https://fico-dashboard-api.herokuapp.com'
+  // EXPRESS_API_URL: 'http://localhost:9000'
 };
 /*
  * For easier debugging in development mode, you can import the following file
