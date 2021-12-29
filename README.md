@@ -12,7 +12,7 @@ This project is to handle millions of data in tabular format with filters on num
 ## Screenshots:
 
 ### Customer Data Page:
-![image](https://user-images.githubusercontent.com/13241573/147664194-65d34cc1-e2aa-4343-95dd-1145249edc34.png)
+![image](https://user-images.githubusercontent.com/13241573/147664647-e679dcaf-d875-41f8-9910-785728d7ae1e.png)
 
 ### Customer Analysis Page - Bar Chart
 ![image](https://user-images.githubusercontent.com/13241573/147664335-c253ddda-eb57-4456-ab02-790c5d03c9bf.png)
