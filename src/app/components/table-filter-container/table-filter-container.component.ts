@@ -1,6 +1,7 @@
-import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSelectChange } from '@angular/material/select';
+import { Subject, takeUntil } from 'rxjs';
 import { CustomerData } from '../../models/customer';
 import { Pagination } from '../../models/pagination';
 import { TableColumn } from '../../models/table-column';
@@ -13,7 +14,7 @@ import { CommonUtils } from '../../utils/common-utils';
   templateUrl: './table-filter-container.component.html',
   styleUrls: ['./table-filter-container.component.scss']
 })
-export class TableFilterContainerComponent implements OnInit, OnChanges {
+export class TableFilterContainerComponent implements OnInit, OnChanges, OnDestroy {
 
   filterBtnLabel = 'Show Filters';
   fieldFilterData: Array<TableColumn> = [];
@@ -49,12 +50,18 @@ export class TableFilterContainerComponent implements OnInit, OnChanges {
     limit: 5
   };
 
+  destroy1$: Subject<string> = new Subject<string>();
+  destroy2$: Subject<string> = new Subject<string>();
+  destroy3$: Subject<string> = new Subject<string>();
+
+
   constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
 
   ngOnInit(): void {
-    this.customerModelService.getCustomerPagination().subscribe((paginationResponse: Pagination) => {
-      this.paginationOptions = paginationResponse;
-    });
+    this.customerModelService.getCustomerPagination().
+      pipe(takeUntil(this.destroy1$)).subscribe((paginationResponse: Pagination) => {
+        this.paginationOptions = paginationResponse;
+      });
   }
 
   ngOnChanges() {
@@ -79,9 +86,10 @@ export class TableFilterContainerComponent implements OnInit, OnChanges {
       if (item.type === 'categorical') {
         if (CommonUtils.shouldFetchCategorical(this.currentSelectedField)) {
           this.filterMap[this.currentSelectedField].multiselect = true;
-          this.customerModelService.getUniqueTableColumnValues(this.currentSelectedField).subscribe((data: any) => {
-            this.filterMap[this.currentSelectedField].values = data['distinctValues'];
-          });
+          this.customerModelService.getUniqueTableColumnValues(this.currentSelectedField).
+            pipe(takeUntil(this.destroy2$)).subscribe((data: any) => {
+              this.filterMap[this.currentSelectedField].values = data['distinctValues'];
+            });
         } else {
           this.filterMap[this.currentSelectedField].multiselect = false;
         }
@@ -107,11 +115,12 @@ export class TableFilterContainerComponent implements OnInit, OnChanges {
     const filterParam = CommonUtils.getCleanUpFilterParam(this.filterMap);
     this.disableFilter = true;
     this.loaderService.triggerLoader(true, 'filter-container');
-    this.customerModelService.applyFilter(filterParam, this.paginationOptions).subscribe(response => {
-      this.disableFilter = false;
-      this.customerModelService.setCustomerModelData(response as CustomerData);
-      this.customerModelService.setCustomerFilterData(this.filterMap);
-    });
+    this.customerModelService.applyFilter(filterParam, this.paginationOptions).
+      pipe(takeUntil(this.destroy3$)).subscribe(response => {
+        this.disableFilter = false;
+        this.customerModelService.setCustomerModelData(response as CustomerData);
+        this.customerModelService.setCustomerFilterData(this.filterMap);
+      });
   }
 
   selectColumnFilter(event: MatSelectChange, column: string, field: string) {
@@ -176,6 +185,15 @@ export class TableFilterContainerComponent implements OnInit, OnChanges {
         return 1;
       }
     });
+  }
+
+  ngOnDestroy() {
+    this.destroy1$.next('');
+    this.destroy1$.complete();
+    this.destroy2$.next('');
+    this.destroy2$.complete();
+    this.destroy3$.next('');
+    this.destroy3$.complete();
   }
 
 }

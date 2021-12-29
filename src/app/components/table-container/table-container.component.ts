@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
 import { Pagination } from '../../models/pagination';
@@ -7,6 +7,7 @@ import { LoaderService } from '../../services/loader.service';
 
 import { Customer, CustomerData } from '../../models/customer';
 import { TableColumn } from '../../models/table-column';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-table-container',
@@ -14,7 +15,7 @@ import { TableColumn } from '../../models/table-column';
   styleUrls: ['./table-container.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class TableContainerComponent implements OnInit, OnChanges {
+export class TableContainerComponent implements OnInit, OnChanges, OnDestroy {
 
   collectionSize = 0;
   pageSize = 5;
@@ -40,19 +41,25 @@ export class TableContainerComponent implements OnInit, OnChanges {
   };
   pageEvent!: PageEvent;
 
+  destroy1$: Subject<string> = new Subject<string>();
+  destroy2$: Subject<string> = new Subject<string>();
+  destroy3$: Subject<string> = new Subject<string>();
+
   constructor(public customerModelService: CustomerModelService,
     public loaderService: LoaderService,
     public cdRef: ChangeDetectorRef) { }
 
   ngOnInit(): void {
     this.getTableData();
-    this.customerModelService.getCustomerModelData().subscribe((customerResponse) => {
-      this.customerData = customerResponse as CustomerData;
-      this.refreshData();
-    });
-    this.customerModelService.getCustomerFilterData().subscribe((filterResponse) => {
-      this.filterMap = filterResponse;
-    });
+    this.customerModelService.getCustomerModelData().
+      pipe(takeUntil(this.destroy1$)).subscribe((customerResponse) => {
+        this.customerData = customerResponse as CustomerData;
+        this.refreshData();
+      });
+    this.customerModelService.getCustomerFilterData().
+      pipe(takeUntil(this.destroy2$)).subscribe((filterResponse) => {
+        this.filterMap = filterResponse;
+      });
   }
 
   ngOnChanges() {
@@ -71,11 +78,12 @@ export class TableContainerComponent implements OnInit, OnChanges {
 
   getTableData() {
     this.loaderService.triggerLoader(true, 'table-container');
-    this.customerModelService.getPaginatedTableData(this.paginationOptions, this.filterMap).subscribe((data) => {
-      this.customerData = data as CustomerData;
-      this.customerModelService.setCustomerPagination(this.paginationOptions);
-      this.refreshData();
-    });
+    this.customerModelService.getPaginatedTableData(this.paginationOptions, this.filterMap).
+      pipe(takeUntil(this.destroy3$)).subscribe((data) => {
+        this.customerData = data as CustomerData;
+        this.customerModelService.setCustomerPagination(this.paginationOptions);
+        this.refreshData();
+      });
   }
 
   setPageSizeOptions(setPageSizeOptionsInput: string) {
@@ -90,6 +98,15 @@ export class TableContainerComponent implements OnInit, OnChanges {
       limit: event.pageSize
     };
     this.getTableData();
+  }
+
+  ngOnDestroy() {
+    this.destroy1$.next('');
+    this.destroy1$.complete();
+    this.destroy2$.next('');
+    this.destroy2$.complete();
+    this.destroy3$.next('');
+    this.destroy3$.complete();
   }
 
 }

@@ -4,6 +4,7 @@ import { CommonUtils } from '../../utils/common-utils';
 import { TableColumn } from '../../models/table-column';
 import { CustomerModelService } from '../../services/customer-model.service';
 import { LoaderService } from '../../services/loader.service';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-chart-filter-container',
@@ -34,6 +35,9 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
       type: ''
     }
   };
+
+  destroy1$: Subject<string> = new Subject<string>();
+  destroy2$: Subject<string> = new Subject<string>();
 
   constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
 
@@ -68,26 +72,30 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
   }
 
   getFilterValues(field: string) {
-    this.customerModelService.getUniqueTableColumnValues(field).subscribe((data: any) => {
-      this.filterMap[field].values = data['distinctValues'];
-    });
+    this.customerModelService.getUniqueTableColumnValues(field).
+      pipe(takeUntil(this.destroy1$)).subscribe((data: any) => {
+        this.filterMap[field].values = data['distinctValues'];
+      });
   }
 
   onApplyFilter() {
     this.loaderService.triggerLoader(true, 'chart-filter-container');
-    this.customerModelService.applyChartFilter(this.filterMap).subscribe((response: any) => {
-      this.customerModelService.setChartData({
-        chartData: response.customers,
-        chartType: this.chartType,
-        chartOptions: this.chartOptions
+    this.customerModelService.applyChartFilter(this.filterMap).
+      pipe(takeUntil(this.destroy2$)).subscribe((response: any) => {
+        this.customerModelService.setChartData({
+          chartData: response.customers,
+          chartType: this.chartType,
+          chartOptions: this.chartOptions
+        });
+        this.loaderService.triggerLoader(false, 'chart-filter-container');
       });
-      this.loaderService.triggerLoader(false, 'chart-filter-container');
-    });
   }
 
   ngOnDestroy() {
-    // this.destroy1$.next('');
-    // this.destroy2$.complete();
+    this.destroy1$.next('');
+    this.destroy1$.complete();
+    this.destroy2$.next('');
+    this.destroy2$.complete();
   }
 
 }

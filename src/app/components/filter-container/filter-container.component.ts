@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, Input, OnChanges, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSelectChange } from '@angular/material/select';
 import { MatTableDataSource } from '@angular/material/table';
@@ -8,6 +8,7 @@ import { CustomerData } from '../../models/customer';
 import { LoaderService } from '../../services/loader.service';
 import { Pagination } from '../../models/pagination';
 import { CommonUtils } from '../../utils/common-utils';
+import { Subject, takeUntil } from 'rxjs';
 
 @Component({
   selector: 'app-filter-container',
@@ -15,7 +16,7 @@ import { CommonUtils } from '../../utils/common-utils';
   styleUrls: ['./filter-container.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class FilterContainerComponent implements OnInit, OnChanges {
+export class FilterContainerComponent implements OnInit, OnChanges, OnDestroy {
 
 
   @Input('tableColumns') tableColumns: Array<TableColumn> = [];
@@ -52,12 +53,17 @@ export class FilterContainerComponent implements OnInit, OnChanges {
     limit: 5
   };
 
+  destroy1$: Subject<string> = new Subject<string>();
+  destroy2$: Subject<string> = new Subject<string>();
+  destroy3$: Subject<string> = new Subject<string>();
+
   constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
 
   ngOnInit(): void {
-    this.customerModelService.getCustomerPagination().subscribe((paginationResponse: Pagination) => {
-      this.paginationOptions = paginationResponse;
-    });
+    this.customerModelService.getCustomerPagination().
+      pipe(takeUntil(this.destroy1$)).subscribe((paginationResponse: Pagination) => {
+        this.paginationOptions = paginationResponse;
+      });
   }
 
   ngOnChanges() {
@@ -99,9 +105,10 @@ export class FilterContainerComponent implements OnInit, OnChanges {
       if (fieldType === 'categorical') {
         if (CommonUtils.shouldFetchDistinctCategorical(event.value)) {
           this.valueMultiSelect = true;
-          this.customerModelService.getUniqueTableColumnValues(event.value).subscribe((data: any) => {
-            this.valueFilterDataCategorical = data['distinctValues'];
-          });
+          this.customerModelService.getUniqueTableColumnValues(event.value).
+            pipe(takeUntil(this.destroy2$)).subscribe((data: any) => {
+              this.valueFilterDataCategorical = data['distinctValues'];
+            });
         } else {
           this.valueMultiSelect = false;
         }
@@ -131,11 +138,21 @@ export class FilterContainerComponent implements OnInit, OnChanges {
   onApplyFilter() {
     this.disableFilter = true;
     this.loaderService.triggerLoader(true, 'filter-container');
-    this.customerModelService.applyFilter(this.filterMap, this.paginationOptions).subscribe(response => {
-      this.disableFilter = false;
-      this.customerModelService.setCustomerModelData(response as CustomerData);
-      this.customerModelService.setCustomerFilterData(this.filterMap);
-    });
+    this.customerModelService.applyFilter(this.filterMap, this.paginationOptions).
+      pipe(takeUntil(this.destroy3$)).subscribe(response => {
+        this.disableFilter = false;
+        this.customerModelService.setCustomerModelData(response as CustomerData);
+        this.customerModelService.setCustomerFilterData(this.filterMap);
+      });
+  }
+
+  ngOnDestroy() {
+    this.destroy1$.next('');
+    this.destroy1$.complete();
+    this.destroy2$.next('');
+    this.destroy2$.complete();
+    this.destroy3$.next('');
+    this.destroy3$.complete();
   }
 
 }
