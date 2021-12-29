@@ -85,4 +85,9 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
     });
   }
 
+  ngOnDestroy() {
+    // this.destroy1$.next('');
+    // this.destroy2$.complete();
+  }
+
 }

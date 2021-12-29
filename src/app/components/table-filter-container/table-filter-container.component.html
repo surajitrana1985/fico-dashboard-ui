@@ -40,7 +40,9 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="standard" *ngIf="filterItem.showOperator1" class="margin-left-20">
+            <mat-form-field appearance="standard"
+                *ngIf="filterItem.showOperator1 && filterItem.join && filterItem.join !== 'between'"
+                class="margin-left-20">
                 <mat-label>Range Operator</mat-label>
                 <mat-select (selectionChange)="selectColumnFilter($event, 'operator1', filterItem.field)">
                     <mat-option *ngFor="let item of filterItem.rangeOperators" [value]="item">
@@ -60,7 +62,8 @@
                     </mat-option>
                 </mat-select>
             </mat-form-field>
-            <mat-form-field appearance="standard" *ngIf="filterItem.showOperator2" class="margin-left-20">
+            <mat-form-field appearance="standard" *ngIf="filterItem.showOperator2 && filterItem.join !== 'between'"
+                class="margin-left-20">
                 <mat-label>Range Operator</mat-label>
                 <mat-select (selectionChange)="selectColumnFilter($event, 'operator2', filterItem.field)">
                     <mat-option *ngFor="let item of filterItem.rangeOperators" [value]="item">

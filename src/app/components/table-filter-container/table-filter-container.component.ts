@@ -17,7 +17,7 @@ export class TableFilterContainerComponent implements OnInit, OnChanges {
 
   filterBtnLabel = 'Show Filters';
   fieldFilterData: Array<TableColumn> = [];
-  numericFilterTypes = ['=', '!=', '>', '<', '>=', '<=', 'and', 'or'];
+  numericFilterTypes = ['=', '!=', '>', '<', '>=', '<=', 'and', 'or', 'between'];
   categoricalFilterTypes = ['=', '!=', 'contains', '!contains'];
   rangeFilter = ['=', '!=', '>', '<', '>=', '<='];
   numericStepFilterTypes = ['and', 'or', 'between'];
@@ -70,25 +70,27 @@ export class TableFilterContainerComponent implements OnInit, OnChanges {
 
   onFilterAdd() {
     const item: TableColumn = this.getFieldType(this.currentSelectedField);
-    this.filterMap[this.currentSelectedField] = item.type === 'numeric' ?
-      Object.assign({}, this.filterObj.numeric) : Object.assign({}, this.filterObj.categorical);
-    this.filterMap[this.currentSelectedField].type = item.type;
-    this.filterMap[this.currentSelectedField].header = item.header;
-    this.filterMap[this.currentSelectedField].field = this.currentSelectedField;
-    if (item.type === 'categorical') {
-      if (CommonUtils.shouldFetchCategorical(this.currentSelectedField)) {
-        this.filterMap[this.currentSelectedField].multiselect = true;
-        this.customerModelService.getUniqueTableColumnValues(this.currentSelectedField).subscribe((data: any) => {
-          this.filterMap[this.currentSelectedField].values = data['distinctValues'];
-        });
-      } else {
-        this.filterMap[this.currentSelectedField].multiselect = false;
+    if (item) {
+      this.filterMap[this.currentSelectedField] = item.type === 'numeric' ?
+        Object.assign({}, this.filterObj.numeric) : Object.assign({}, this.filterObj.categorical);
+      this.filterMap[this.currentSelectedField].type = item.type;
+      this.filterMap[this.currentSelectedField].header = item.header;
+      this.filterMap[this.currentSelectedField].field = this.currentSelectedField;
+      if (item.type === 'categorical') {
+        if (CommonUtils.shouldFetchCategorical(this.currentSelectedField)) {
+          this.filterMap[this.currentSelectedField].multiselect = true;
+          this.customerModelService.getUniqueTableColumnValues(this.currentSelectedField).subscribe((data: any) => {
+            this.filterMap[this.currentSelectedField].values = data['distinctValues'];
+          });
+        } else {
+          this.filterMap[this.currentSelectedField].multiselect = false;
+        }
       }
+      this.filterFieldCollection.push(this.filterMap[this.currentSelectedField]);
+      this.fieldFilterData = this.fieldFilterData.filter(item => {
+        return item.field !== this.currentSelectedField;
+      });
     }
-    this.filterFieldCollection.push(this.filterMap[this.currentSelectedField]);
-    this.fieldFilterData = this.fieldFilterData.filter(item => {
-      return item.field !== this.currentSelectedField;
-    });
   }
 
   onShowFilterChange(event: MatButtonToggleChange) {
@@ -118,6 +120,10 @@ export class TableFilterContainerComponent implements OnInit, OnChanges {
     } else if (column === 'operator' && CommonUtils.isJoinOperator(this.numericStepFilterTypes, event.value)) {
       column = 'join';
       this.filterMap[field]['join'] = event.value;
+      if (this.filterMap[field]['join'] === 'between') {
+        this.filterMap[field].operator1 = '>';
+        this.filterMap[field].operator2 = '<';
+      }
       this.filterMap[field].showOperator1 = true;
       this.filterMap[field].showOperator2 = true;
     } else {
@@ -139,6 +145,13 @@ export class TableFilterContainerComponent implements OnInit, OnChanges {
   onValueChange(event: any, column: string, field: string) {
     if (!this.numericStepFilterTypes.includes(this.filterMap[field][column])) {
       this.filterMap[field][`${column}`] = event.target.value;
+      if (this.filterMap[field].join === 'between') {
+        if (column === 'value1') {
+          this.filterMap[field].operator1 = '>';
+        } else if (column === 'value2') {
+          this.filterMap[field].operator2 = '<';
+        }
+      }
     }
   }
 

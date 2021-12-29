@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { Subject, takeUntil } from 'rxjs';
 import { TableColumn } from './models/table-column';
 import { LoaderService } from './services/loader.service';
 
@@ -10,7 +11,7 @@ import { LoaderService } from './services/loader.service';
   changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [LoaderService]
 })
-export class AppComponent implements OnInit {
+export class AppComponent implements OnInit, OnDestroy {
 
   showLoader = false;
 
@@ -80,14 +81,15 @@ export class AppComponent implements OnInit {
   filterLabel = 'Show Filter';
   showFilter = false;
   containerType: string = '';
-
+  destroy$: Subject<string> = new Subject<string>();
   constructor(public loaderService: LoaderService, public cdRef: ChangeDetectorRef) { }
 
   ngOnInit() {
-    this.loaderService.getLoaderState().subscribe(response => {
-      this.showLoader = response;
-      this.cdRef.detectChanges();
-    });
+    this.loaderService.getLoaderState().
+      pipe(takeUntil(this.destroy$)).subscribe(response => {
+        this.showLoader = response;
+        this.cdRef.detectChanges();
+      });
   }
 
   onTabChange(event: MatTabChangeEvent) {
@@ -101,6 +103,11 @@ export class AppComponent implements OnInit {
       default:
         this.containerType = 'table';
     }
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next('');
+    this.destroy$.complete();
   }
 
 }

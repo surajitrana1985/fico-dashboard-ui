@@ -1,6 +1,7 @@
-import { Component, Input, OnInit, ViewChild } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ChartOptions, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
+import { Subject, takeUntil } from 'rxjs';
 
 import { CustomerModelService } from '../../services/customer-model.service';
 import { LoaderService } from '../../services/loader.service';
@@ -9,7 +10,7 @@ import { LoaderService } from '../../services/loader.service';
   templateUrl: './chart-container.component.html',
   styleUrls: ['./chart-container.component.scss']
 })
-export class ChartContainerComponent implements OnInit {
+export class ChartContainerComponent implements OnInit, OnDestroy {
 
   barChartOptions = {
     scaleShowVerticalLines: false,
@@ -47,11 +48,12 @@ export class ChartContainerComponent implements OnInit {
   chartData: Array<any> = [];
   chartOptions: any = {};
   @Input('chartType') chartType: string = '';
+  destroy$: Subject<string> = new Subject<string>();
 
   constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
 
   ngOnInit(): void {
-    this.customerModelService.getChartData().subscribe(response => {
+    this.customerModelService.getChartData().pipe(takeUntil(this.destroy$)).subscribe(response => {
       this.chartData = response.chartData;
       this.chartType = response.chartType;
       this.chartOptions = response.chartOptions || {};
@@ -112,6 +114,11 @@ export class ChartContainerComponent implements OnInit {
       this.chart.update();
     }
     this.loaderService.triggerLoader(false, 'chart-container');
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next('');
+    this.destroy$.complete();
   }
 
 }

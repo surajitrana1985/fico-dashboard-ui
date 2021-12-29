@@ -6,6 +6,10 @@
   float: right;
 }
 
+.margin-right-100 {
+  margin-right: 100px;
+}
+
 .margin-right-200 {
   margin-right: 200px;
 }
@@ -77,4 +81,10 @@
 
 .table-label-filter {
   min-width: 160px;
+}
+
+.chart-container-parent {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  grid-column-gap: 20px;
 }

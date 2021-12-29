@@ -14,22 +14,22 @@
         </div>
       </mat-tab>
       <mat-tab label="Customer Analysis - Bar Chart">
-        <span class="float-left">
+        <div class="chart-container-parent">
           <app-chart-filter-container [tableColumns]="columns" [chartType]="'bar'">
           </app-chart-filter-container>
-        </span>
-        <span class="float-right min-width-500 chart-content">
-          <app-chart-container [chartType]="containerType"></app-chart-container>
-        </span>
+          <div class="margin-right-100">
+            <app-chart-container [chartType]="containerType"></app-chart-container>
+          </div>
+        </div>
       </mat-tab>
       <mat-tab label="Customer Analysis - Scatter Chart">
-        <span class="float-left">
+        <div class="chart-container-parent">
           <app-chart-filter-container [tableColumns]="columns" [chartType]="'scatter'">
           </app-chart-filter-container>
-        </span>
-        <span class="float-right min-width-500 chart-content">
-          <app-chart-container [chartType]="containerType"></app-chart-container>
-        </span>
+          <div class="margin-right-100">
+            <app-chart-container [chartType]="containerType"></app-chart-container>
+          </div>
+        </div>
       </mat-tab>
     </mat-tab-group>
   </div>
