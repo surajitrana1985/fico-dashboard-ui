@@ -1,15 +1,17 @@
 import { Component, Input, OnChanges, OnInit } from '@angular/core';
+import { Subject, takeUntil } from 'rxjs';
 import { MatSelectChange } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
 import { CommonUtils } from '../../utils/common-utils';
 import { TableColumn } from '../../models/table-column';
 import { CustomerModelService } from '../../services/customer-model.service';
 import { LoaderService } from '../../services/loader.service';
-import { Subject, takeUntil } from 'rxjs';
+import { ErrorConstants } from '../../../constants/app.constants';
 
 @Component({
   selector: 'app-chart-filter-container',
-  templateUrl: './chart-filter-container.component.html',
-  styleUrls: ['./chart-filter-container.component.scss']
+  templateUrl: './chart-filter-container.component.html'
 })
 export class ChartFilterContainerComponent implements OnInit, OnChanges {
 
@@ -39,7 +41,7 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
   destroy1$: Subject<string> = new Subject<string>();
   destroy2$: Subject<string> = new Subject<string>();
 
-  constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
+  constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService, public snackBar: MatSnackBar) { }
 
   ngOnInit(): void { }
 
@@ -75,6 +77,8 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
     this.customerModelService.getUniqueTableColumnValues(field).
       pipe(takeUntil(this.destroy1$)).subscribe((data: any) => {
         this.filterMap[field].values = data['distinctValues'];
+      }, error => {
+        this.showNotificationOnError(ErrorConstants.UNIQUE_DATA_LOAD_ERROR);
       });
   }
 
@@ -88,7 +92,14 @@ export class ChartFilterContainerComponent implements OnInit, OnChanges {
           chartOptions: this.chartOptions
         });
         this.loaderService.triggerLoader(false, 'chart-filter-container');
+      }, error => {
+        this.showNotificationOnError(ErrorConstants.CHART_FILTER_APPLY_ERROR);
       });
+  }
+
+  showNotificationOnError(message: string) {
+    this.loaderService.showSnackbar(this.snackBar, message);
+    this.loaderService.triggerLoader(false, 'chart-filter-container');
   }
 
   ngOnDestroy() {

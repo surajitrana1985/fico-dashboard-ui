@@ -1,14 +1,16 @@
 import { Component, Input, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ChartOptions, ChartType } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
 import { Subject, takeUntil } from 'rxjs';
+import { ErrorConstants } from '../../../constants/app.constants';
 
 import { CustomerModelService } from '../../services/customer-model.service';
 import { LoaderService } from '../../services/loader.service';
+
 @Component({
   selector: 'app-chart-container',
-  templateUrl: './chart-container.component.html',
-  styleUrls: ['./chart-container.component.scss']
+  templateUrl: './chart-container.component.html'
 })
 export class ChartContainerComponent implements OnInit, OnDestroy {
 
@@ -50,7 +52,7 @@ export class ChartContainerComponent implements OnInit, OnDestroy {
   @Input('chartType') chartType: string = '';
   destroy$: Subject<string> = new Subject<string>();
 
-  constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
+  constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService, public snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.customerModelService.getChartData().pipe(takeUntil(this.destroy$)).subscribe(response => {
@@ -63,6 +65,8 @@ export class ChartContainerComponent implements OnInit, OnDestroy {
       } else {
         this.parseScatterChartSeries();
       }
+    }, error => {
+      this.showNotificationOnError(ErrorConstants.CUSTOMER_DATA_LOAD_ERROR);
     });
   }
 
@@ -113,6 +117,11 @@ export class ChartContainerComponent implements OnInit, OnDestroy {
       });
       this.chart.update();
     }
+    this.loaderService.triggerLoader(false, 'chart-container');
+  }
+
+  showNotificationOnError(message: string) {
+    this.loaderService.showSnackbar(this.snackBar, message);
     this.loaderService.triggerLoader(false, 'chart-container');
   }
 

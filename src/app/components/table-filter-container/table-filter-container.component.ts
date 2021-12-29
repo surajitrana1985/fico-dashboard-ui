@@ -1,7 +1,10 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { MatSelectChange } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Subject, takeUntil } from 'rxjs';
+
+import { ErrorConstants } from '../../../constants/app.constants';
 import { CustomerData } from '../../models/customer';
 import { Pagination } from '../../models/pagination';
 import { TableColumn } from '../../models/table-column';
@@ -11,8 +14,7 @@ import { CommonUtils } from '../../utils/common-utils';
 
 @Component({
   selector: 'app-table-filter-container',
-  templateUrl: './table-filter-container.component.html',
-  styleUrls: ['./table-filter-container.component.scss']
+  templateUrl: './table-filter-container.component.html'
 })
 export class TableFilterContainerComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -55,12 +57,14 @@ export class TableFilterContainerComponent implements OnInit, OnChanges, OnDestr
   destroy3$: Subject<string> = new Subject<string>();
 
 
-  constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService) { }
+  constructor(public customerModelService: CustomerModelService, public loaderService: LoaderService, public snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.customerModelService.getCustomerPagination().
       pipe(takeUntil(this.destroy1$)).subscribe((paginationResponse: Pagination) => {
         this.paginationOptions = paginationResponse;
+      }, error => {
+        this.showNotificationOnError(ErrorConstants.CUSTOMER_DATA_LOAD_ERROR);
       });
   }
 
@@ -89,6 +93,8 @@ export class TableFilterContainerComponent implements OnInit, OnChanges, OnDestr
           this.customerModelService.getUniqueTableColumnValues(this.currentSelectedField).
             pipe(takeUntil(this.destroy2$)).subscribe((data: any) => {
               this.filterMap[this.currentSelectedField].values = data['distinctValues'];
+            }, error => {
+              this.showNotificationOnError(ErrorConstants.UNIQUE_DATA_LOAD_ERROR);
             });
         } else {
           this.filterMap[this.currentSelectedField].multiselect = false;
@@ -112,14 +118,16 @@ export class TableFilterContainerComponent implements OnInit, OnChanges, OnDestr
   }
 
   onApplyFilter() {
-    const filterParam = CommonUtils.getCleanUpFilterParam(this.filterMap);
+    this.filterMap = CommonUtils.getCleanUpFilterParam(this.filterMap);
     this.disableFilter = true;
     this.loaderService.triggerLoader(true, 'filter-container');
-    this.customerModelService.applyFilter(filterParam, this.paginationOptions).
+    this.customerModelService.applyFilter(this.filterMap, this.paginationOptions).
       pipe(takeUntil(this.destroy3$)).subscribe(response => {
         this.disableFilter = false;
         this.customerModelService.setCustomerModelData(response as CustomerData);
         this.customerModelService.setCustomerFilterData(this.filterMap);
+      }, error => {
+        this.showNotificationOnError(ErrorConstants.TABLE_FILTER_APPLY_ERROR);
       });
   }
 
@@ -186,6 +194,11 @@ export class TableFilterContainerComponent implements OnInit, OnChanges, OnDestr
         return 1;
       }
     });
+  }
+
+  showNotificationOnError(message: string) {
+    this.loaderService.showSnackbar(this.snackBar, message);
+    this.loaderService.triggerLoader(false, 'table-filter-container');
   }
 
   ngOnDestroy() {

@@ -1,18 +1,21 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core';
 import { PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource } from '@angular/material/table';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { Subject, takeUntil } from 'rxjs';
+
 import { Pagination } from '../../models/pagination';
 import { CustomerModelService } from '../../services/customer-model.service';
 import { LoaderService } from '../../services/loader.service';
 
 import { Customer, CustomerData } from '../../models/customer';
 import { TableColumn } from '../../models/table-column';
-import { Subject, takeUntil } from 'rxjs';
+
+import { ErrorConstants } from '../../../constants/app.constants';
 
 @Component({
   selector: 'app-table-container',
   templateUrl: './table-container.component.html',
-  styleUrls: ['./table-container.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class TableContainerComponent implements OnInit, OnChanges, OnDestroy {
@@ -47,7 +50,7 @@ export class TableContainerComponent implements OnInit, OnChanges, OnDestroy {
 
   constructor(public customerModelService: CustomerModelService,
     public loaderService: LoaderService,
-    public cdRef: ChangeDetectorRef) { }
+    public cdRef: ChangeDetectorRef, public snackBar: MatSnackBar) { }
 
   ngOnInit(): void {
     this.getTableData();
@@ -55,10 +58,14 @@ export class TableContainerComponent implements OnInit, OnChanges, OnDestroy {
       pipe(takeUntil(this.destroy1$)).subscribe((customerResponse) => {
         this.customerData = customerResponse as CustomerData;
         this.refreshData();
+      }, (error) => {
+        this.showNotificationOnError(ErrorConstants.CUSTOMER_DATA_LOAD_ERROR);
       });
     this.customerModelService.getCustomerFilterData().
       pipe(takeUntil(this.destroy2$)).subscribe((filterResponse) => {
         this.filterMap = filterResponse;
+      }, (error) => {
+        this.showNotificationOnError(ErrorConstants.CUSTOMER_DATA_LOAD_ERROR);
       });
   }
 
@@ -83,6 +90,8 @@ export class TableContainerComponent implements OnInit, OnChanges, OnDestroy {
         this.customerData = data as CustomerData;
         this.customerModelService.setCustomerPagination(this.paginationOptions);
         this.refreshData();
+      }, error => {
+        this.showNotificationOnError(ErrorConstants.CUSTOMER_DATA_LOAD_ERROR);
       });
   }
 
@@ -98,6 +107,11 @@ export class TableContainerComponent implements OnInit, OnChanges, OnDestroy {
       limit: event.pageSize
     };
     this.getTableData();
+  }
+
+  showNotificationOnError(message: string) {
+    this.loaderService.showSnackbar(this.snackBar, message);
+    this.loaderService.triggerLoader(false, 'table-container');
   }
 
   ngOnDestroy() {
