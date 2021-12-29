@@ -1,8 +1,10 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, map, Observable } from 'rxjs';
-import { CustomerData } from '../models/customer';
 
+import { environment } from '../../environments/environment';
+
+import { CustomerData } from '../models/customer';
 import { Pagination } from '../models/pagination';
 
 @Injectable({
@@ -10,7 +12,7 @@ import { Pagination } from '../models/pagination';
 })
 export class CustomerModelService {
 
-  API_URL = 'http://localhost:9000/customers';
+  API_URL = `${environment.EXPRESS_API_URL}/customers`;
 
   customerDataSubject = new BehaviorSubject<CustomerData>({ customers: [], totalRecords: 0 });
   customerFilterSubject = new BehaviorSubject<Object>({});
