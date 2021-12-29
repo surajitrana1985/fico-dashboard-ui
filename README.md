@@ -1,8 +1,24 @@
-# Fico Dashboard
+# FICO Dashboard
+
+## Application Deployed to Netlify:
+Link: https://61cc56e4d0818a0007d0215b--thirsty-johnson-484252.netlify.app/
+
+## Tech Stack:
+
+MEAN (Mongo Express Angular Node)
 
 This project is to handle millions of data in tabular format with filters on numeric and categorical fields and visualize the same in charts
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 13.1.2.
+## Screenshots:
+
+### Customer Data Page:
+![image](https://user-images.githubusercontent.com/13241573/147664194-65d34cc1-e2aa-4343-95dd-1145249edc34.png)
+
+### Customer Analysis Page - Bar Chart
+![image](https://user-images.githubusercontent.com/13241573/147664335-c253ddda-eb57-4456-ab02-790c5d03c9bf.png)
+
+### Customer Analysis Page - Scatter Chart
+![image](https://user-images.githubusercontent.com/13241573/147664505-72487a38-ee0e-409f-b919-914e071dec03.png)
 
 ## Development server
 
