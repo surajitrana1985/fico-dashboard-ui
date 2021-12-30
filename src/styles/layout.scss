@@ -87,8 +87,20 @@
   min-width: 160px;
 }
 
-.chart-container-parent {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  grid-column-gap: 20px;
+/* For tablets: */
+@media only screen and (min-width: 768px) {
+  .chart-container-parent {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-column-gap: 20px;
+  }
+}
+
+/* For desktop/laptops: */
+@media only screen and (min-width: 1024px) {
+  .chart-container-parent {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    grid-column-gap: 20px;
+  }
 }
